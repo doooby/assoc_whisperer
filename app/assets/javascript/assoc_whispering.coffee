@@ -22,7 +22,7 @@ document.AssocWhispering = {
         w._last_input = '§'
         w.getList('', false, ->
             switch value
-                when '#1' then w.select(w._list_tag.find('span:first'))
+                when '#1' then w.select(w._list_tag.find('div:first'))
                 else w.selectValue(value)
         )
 }
@@ -135,7 +135,7 @@ class Whisperer
         @_list_tag.focus => @_focus = 'list'
         @_list_tag.blur @controls_blur
 
-        rows = @_list_tag.find('span')
+        rows = @_list_tag.find('div')
         rows.click (el) => @select($(el.currentTarget))
 
     # Adds a class 'inactive' to list to make it visualy distinguishable.
@@ -164,11 +164,11 @@ class Whisperer
 
     # Selects row by given value.
     selectValue: (value) =>
-        @select(@_list_tag.find('span[data-value='+value+']'))
+        @select(@_list_tag.find('div[data-value='+value+']'))
 
     # Selects row by given text label.
     selectText: (text) =>
-        @select(@_list_tag.find('span:contains("'+text+'")'))
+        @select(@_list_tag.find('div:contains("'+text+'")'))
 
     # Sets Whisperer to 'unfilled' state - no value has been selected (applies css class 'unfilled').
     setUnfilled: =>
