@@ -32,8 +32,7 @@
     background-color: #e8d7d2;
     font-weight: normal;
 }
-.assoc_whisperer .list span {
-    display: table-row;
+.assoc_whisperer .list div {
     text-align: center;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -43,6 +42,6 @@
     user-select: none;
     cursor: default;
 }
-.assoc_whisperer .list span:hover {
+.assoc_whisperer .list div:hover {
     background-color: #fffbb5;
 }

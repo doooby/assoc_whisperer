@@ -4,6 +4,6 @@
 %>
 <div tabindex=0 class="list">
   <% @objects.each do |o| %>
-    <span data-value="<%= o.send val_method %>"><%= o.send text_method %></span>
+    <div data-value="<%= o.send val_method %>"><%= o.send text_method %></div>
   <% end %>
 </div>
