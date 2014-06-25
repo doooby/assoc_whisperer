@@ -1,0 +1,48 @@
+.assoc_whisperer {
+    border: inset 2px lightgrey;
+    background-color: #e8d7d2;
+}
+.assoc_whisperer .text_field {
+    border: none;
+    background-color: transparent;
+    padding: 1px;
+}
+.assoc_whisperer .unfilled {
+    color: darkred;
+}
+.assoc_whisperer .dropdown_button {
+    padding-left: 2px;
+    padding-right: 2px;
+    border: 2px lightgrey outset;
+    background-color: gainsboro;
+    font-size: 0.9em;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+.assoc_whisperer .list {
+    max-height: 300px;
+    overflow-y: scroll;
+    border: 1px solid gray;
+    position: absolute;
+    background-color: #e8d7d2;
+    font-weight: normal;
+}
+.assoc_whisperer .list span {
+    display: table-row;
+    text-align: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+.assoc_whisperer .list span:hover {
+    background-color: #fffbb5;
+}

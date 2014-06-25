@@ -1,0 +1,9 @@
+<%
+   text_method = local_assigns[:text] || :to_s
+   val_method = local_assigns[:val] || :id
+%>
+<div tabindex=0 class="list">
+  <% @objects.each do |o| %>
+    <span data-value="<%= o.send val_method %>"><%= o.send text_method %></span>
+  <% end %>
+</div>

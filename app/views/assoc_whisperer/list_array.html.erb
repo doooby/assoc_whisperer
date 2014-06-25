@@ -1,0 +1,5 @@
+<div tabindex=0 class="list">
+  <% @rows.each do |r| %>
+    <span data-value="<%= r.last %>"><%= r.first %></span>
+  <% end %>
+</div>
