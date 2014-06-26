@@ -88,9 +88,11 @@ class Whisperer
 
     # A 'button' to show the whole menu list (like entering an empty input).
     dropdown_button_click: =>
+        hold_last = @_last_input
         @_last_input = '§'
         if @_is_filled
             @getList('', true)
+            @_last_input = hold_last
         else
             @getList(@_text_field.val(), true)
 

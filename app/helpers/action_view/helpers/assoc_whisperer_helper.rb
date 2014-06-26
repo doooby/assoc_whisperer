@@ -42,7 +42,7 @@ module ActionView
         wrapper_assoc_whisperer_assets
 
         sanitized_id = name.to_s.delete(']').gsub(/[^-a-zA-Z0-9:.]/, "_")
-        text_tag_name = name.to_s
+        text_tag_name = name.to_s.dup
         text_tag_name.insert (text_tag_name[-1]==']' ? -2 : -1), '_txt'
 
         content = %Q(<input class="value_field" id="#{sanitized_id}" name="#{name}" type="hidden")
