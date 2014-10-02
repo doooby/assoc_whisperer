@@ -60,13 +60,13 @@ document.AssocWhisperer = (function () {
                 }
                 _timer = setTimeout(function () {
                     if (w.client_side) {
-                        if (!w.full_data) querry.call(w, null, function (html_text) {
+                        if (!w.full_data) query(w, null, function (html_text) {
                             w.full_data = $(html_text);
-                            digest(input_text);
+                            showList(digest(input_text));
                         });
-                        else digest(input_text);
+                        else showList(digest(input_text));
                     }
-                    else querry.call(w, input_text, function (html_text) {
+                    else query(w, input_text, function (html_text) {
                         showList($(html_text));
                     });
                 }, 700);
@@ -76,31 +76,29 @@ document.AssocWhisperer = (function () {
         _nodes.text_field.focus(function(){ w.focused = true; });
         _nodes.text_field.blur(function(){ onBlur(); });
         el.children('.dropdown_button').on('click', function(){
+            var f;
             if (_timer) clearTimeout(_timer);
             if (w.client_side) {
-                function f () {
+                f = function () {
                     var input_text;
                     if (w.filled) showList(w.full_data);
                     else {
                         input_text = _nodes['text_field'].val();
-                        digest(input_text==='' ? null : input_text);
+                        showList(digest(input_text==='' ? null : input_text));
                     }
                     _nodes['list'].focus();
-                }
-                if (!w.full_data) querry.call(w, null, function (html_text) {
+                };
+                if (!w.full_data) query(w, null, function (html_text) {
                     w.full_data = $(html_text);
                     f();
                 });
                 else f();
             }
             else {
-                if (w.filled) querry.call(w, null, function (html_text) {
+                query(w, (w.filled ? null : _nodes['text_field'].val()), function (html_text) {
                     showList($(html_text));
+                    _nodes['list'].focus();
                 });
-                else querry.call(w, _nodes['text_field'].val(), function (html_text) {
-                    showList($(html_text));
-                });
-                _nodes['list'].focus();
             }
         });
 
@@ -115,7 +113,7 @@ document.AssocWhisperer = (function () {
                         narrowed_list.append($(this).clone());
                 });
             }
-            showList(narrowed_list);
+            return narrowed_list;
         }
 
         // Attaches a List sent by html string within Whisperer's tag. Positions it underneath the text field.
@@ -176,16 +174,21 @@ document.AssocWhisperer = (function () {
     });
 
     // Actual ajax request for given input
-    function querry (input, on_success) {
-        var w = this;
-        klass.querrying = true;
+    function query (w, input, on_success) {
+        var btn;
+        klass.querying = true;
+        btn = w.nodes['base'].find('.dropdown_button');
+        btn.addClass('querying');
         $.ajax(w.url, {
                 type: 'GET',
                 dataType: 'html',
                 data: {data_action: w.action, input: (input||'')},
                 error: function () { w.removeList(); },
                 success: on_success,
-                complete: function () { klass.querrying = false; }
+                complete: function () {
+                    klass.querying = false;
+                    btn.removeClass('querying');
+                }
             }
         );
     }
@@ -195,7 +198,7 @@ document.AssocWhisperer = (function () {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    klass = Object.create(Object, {querrying: {value: false, writable: true}});
+    klass = Object.create(Object, {querying: {value: false, writable: true}});
 
     // Return a Whisperer instance by its data-action attribute.
     function findWhisperer(action) {
@@ -219,7 +222,7 @@ document.AssocWhisperer = (function () {
         value: function (text, whisp_action) {
             var w;
             w = findWhisperer(whisp_action);
-            querry.call(w, text, function (html_text) {
+            query(w, text, function (html_text) {
                 w.select($(html_text).find('div:contains("'+text+'")'));
             });
         }
@@ -231,7 +234,7 @@ document.AssocWhisperer = (function () {
         value: function (value, whisp_action) {
             var w;
             w = findWhisperer(whisp_action);
-            querry.call(w, null, function (html_text) {
+            query(w, null, function (html_text) {
                 switch (value) {
                     case '#1':
                         w.select($(html_text).find('div:first'));

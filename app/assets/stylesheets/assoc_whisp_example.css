@@ -24,6 +24,12 @@
     user-select: none;
     cursor: default;
 }
+.assoc_whisperer .querying {
+    background-image: url("assoc_whisp_querying.gif");
+    background-size: contain;
+    background-repeat: no-repeat;
+    color: rgba(0, 0, 0, 0);
+}
 .assoc_whisperer .list {
     max-height: 300px;
     overflow-y: scroll;
