@@ -52,7 +52,8 @@ module ActionView
         content << %Q( type="text" value="#{options[:text]}">)
         content << %Q(<span class="dropdown_button">\u25BE</span>)
         content_tag :span, content.html_safe, 'data-url' => (options[:url]||AssocWhisperer.def_url),
-                    'data-action' => data_action, 'class' => 'assoc_whisperer'
+                    'data-action' => data_action, 'data-client-side' => (options[:client_side] && 'true'),
+                    'class' => 'assoc_whisperer'
       end
 
       private
