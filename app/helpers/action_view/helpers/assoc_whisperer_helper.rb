@@ -34,26 +34,15 @@ module ActionView
       def assoc_whisperer(object_name, method, data_action, options={})
         wrapper_assoc_whisperer_assets
 
-        options[:url] = AssocWhisperer.def_url unless options.has_key? :url
         Tags::AssocWhispererField.new(object_name, method, self, data_action, options).render
       end
 
       def assoc_whisperer_tag(name, data_action, options = {})
         wrapper_assoc_whisperer_assets
 
-        sanitized_id = name.to_s.delete(']').gsub(/[^-a-zA-Z0-9:.]/, "_")
-        text_tag_name = name.to_s.dup
-        text_tag_name.insert (text_tag_name[-1]==']' ? -2 : -1), '_txt'
-
-        content = %Q(<input class="value_field" id="#{sanitized_id}" name="#{name}" type="hidden")
-        content << %Q( value="#{options[:value]}">)
-        content << %Q(<input autocomplete="off" class="text_field#{' unfilled' if options[:value].blank?}")
-        content << %Q( id="#{sanitized_id}_txt" name="#{text_tag_name}" size="#{options[:size]||12}")
-        content << %Q( type="text" value="#{options[:text]}">)
-        content << %Q(<span class="dropdown_button">\u25BE</span>)
-        content_tag :span, content.html_safe, 'data-url' => (options[:url]||AssocWhisperer.def_url),
-                    'data-action' => data_action, 'data-client-side' => (options[:client_side] && 'true'),
-                    'class' => 'assoc_whisperer'
+        template = AssocWhisperer::Template.new data_action, options
+        content_tag :span, template.simple_tag_contents(name).html_safe, 'class' => 'assoc_whisperer',
+                    'data-opts' => template.whisperer_options.to_json
       end
 
       private

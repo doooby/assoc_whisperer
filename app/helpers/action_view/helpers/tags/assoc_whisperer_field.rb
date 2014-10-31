@@ -1,24 +1,22 @@
 module ActionView
   module Helpers
-    module Tags # :nodoc:
-      class AssocWhispererField < Base # :nodoc:
+    module Tags
+      class AssocWhispererField < Base
 
         def initialize(object_name, method_name, template_object, action, options={})
-          @action = action
           options[:value_method] = :id unless options.has_key? :value_method
           options[:text_method] = :to_s unless options.has_key? :text_method
           super object_name, method_name, template_object, options
+          @template = AssocWhisperer::Template.new action, @options
         end
 
         def render
-          content = %Q(<input class="value_field" id="#{value_tag_id}" name="#{value_tag_name}" type="hidden")
-          content << %Q( value="#{value_tag_value}">)
-          content << %Q(<input autocomplete="off" class="text_field#{' unfilled' unless whispered_object}")
-          content << %Q( id="#{text_tag_id}" name="#{text_tag_name}" size="#{@options[:size]||12}")
-          content << %Q( type="text" value="#{text_tag_value}">)
-          content << %Q(<span class="dropdown_button">\u25BE</span>)
-          content_tag :span, content.html_safe, 'data-url' => @options[:url], 'data-action' => @action,
-                      'data-client-side' => (@options[:client_side] && 'true'), 'class' => 'assoc_whisperer'
+          contents = @template.value_field_tag value_tag_id, value_tag_name, value_tag_value
+          contents += @template.text_field_tag text_tag_id, text_tag_name, text_tag_value, !whispered_object
+          contents += @template.dropdown_button_tag
+
+          content_tag :span, contents.html_safe, 'class' => 'assoc_whisperer',
+                      'data-opts' => @template.whisperer_options.to_json
         end
 
         private
@@ -41,7 +39,7 @@ module ActionView
         end
 
         def text_tag_value
-          text = @options[:text_method]
+          text = @template.opts[:text_method]
           text = if text.respond_to? :call
                    text.call whispered_object
                  else
@@ -51,13 +49,7 @@ module ActionView
         end
 
         def text_sanitized_method_name
-          return @text_sanitized_method_name if defined? @text_sanitized_method_name
-          wsmn = if @options[:name]
-                   "#{@options[:name]}_txt"
-                 else
-                   "#{@method_name}_txt"
-                 end
-          @text_sanitized_method_name = wsmn.sub(/\?$/,"")
+          @text_sanitized_method_name ||= "#{@template.opts[:name] || @method_name}_txt".sub(/\?$/,"")
         end
 
         def value_tag_name
@@ -69,15 +61,15 @@ module ActionView
         end
 
         def value_tag_value
-          whispered_object_attribute @options[:value_method]
+          whispered_object_attribute @template.opts[:value_method]
         end
 
         def value_sanitized_method_name
           return @value_sanitized_method_name if defined? @value_sanitized_method_name
-          wsmn = if @options[:name]
-                   @options[:name].to_s
+          wsmn = if @template.opts[:name]
+                   @template.opts[:name].to_s
                  else
-                   "#{@method_name}_#{@options[:value_method]}"
+                   "#{@method_name}_#{@template.opts[:value_method]}"
                  end
           @value_sanitized_method_name = wsmn.sub(/\?$/,"")
         end

@@ -15,7 +15,7 @@ document.AssocWhisperer = (function () {
 
     // This is where Whisperer Object is created - with all hidden inner methods.
     function createWhisperer(dom_node) {
-        var el, w, _nodes, _timer;
+        var el, w, _nodes, opts, _timer;
 
         el = $(dom_node);
         _nodes = {
@@ -24,14 +24,18 @@ document.AssocWhisperer = (function () {
             value_field: el.children('.value_field'),
             list: null
         };
+        opts = el.data('opts');
+        if (!opts['action']) throw 'Missing action in '+JSON.stringify(opts);
+        if (!opts['url']) throw 'Missing url in '+JSON.stringify(opts);
 
         w = Object.create(proto, {
             nodes: {value: _nodes},
-            action: {value: el.attr('data-action')},
-            url: {value: el.attr('data-url')},
+            action: {value: opts['action']},
+            url: {value: opts['url']},
             focused: {value: false, writable: true},
             filled: {value: _nodes['value_field'].val()!=='', writable: true},
-            client_side: {value: el.attr('data-client-side')==='true'},
+            client_side: {value: opts['cs']===true},
+            preload: {value: opts['pre']===true},
             full_data: {value: null, writable: true}
         });
 
