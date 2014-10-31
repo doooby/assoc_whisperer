@@ -15,7 +15,7 @@ document.AssocWhisperer = (function () {
 
     // This is where Whisperer Object is created - with all hidden inner methods.
     function createWhisperer(dom_node) {
-        var el, w, _nodes, opts, _timer;
+        var el, w, _nodes, opts, params, _timer;
 
         el = $(dom_node);
         _nodes = {
@@ -27,17 +27,20 @@ document.AssocWhisperer = (function () {
         opts = el.data('opts');
         if (!opts['action']) throw 'Missing action in '+JSON.stringify(opts);
         if (!opts['url']) throw 'Missing url in '+JSON.stringify(opts);
+        if (typeof opts['params']!=='object') opts['params'] = {};
 
         w = Object.create(proto, {
             nodes: {value: _nodes},
             action: {value: opts['action']},
             url: {value: opts['url']},
+            params: {value: opts['params']},
             focused: {value: false, writable: true},
             filled: {value: _nodes['value_field'].val()!=='', writable: true},
             client_side: {value: opts['cs']===true},
             preload: {value: opts['pre']===true},
             full_data: {value: null, writable: true}
         });
+        w.params['data_action'] = w.action;
 
         _nodes.text_field.on('keyup', function(e){
             var input_text;
@@ -105,6 +108,7 @@ document.AssocWhisperer = (function () {
                 });
             }
         });
+        el.children('.dropdown_button').removeClass('querying'); // css class is set, hence gif gets pre-loaded
 
         // For local full_data finds matching rows and shows them.
         function digest(input_text) {
@@ -183,10 +187,11 @@ document.AssocWhisperer = (function () {
         klass.querying = true;
         btn = w.nodes['base'].find('.dropdown_button');
         btn.addClass('querying');
+        w.params['input'] = input || '';
         $.ajax(w.url, {
                 type: 'GET',
                 dataType: 'html',
-                data: {data_action: w.action, input: (input||'')},
+                data: w.params,
                 error: function () { w.removeList(); },
                 success: on_success,
                 complete: function () {

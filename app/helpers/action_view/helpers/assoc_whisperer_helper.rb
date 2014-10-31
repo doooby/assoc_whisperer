@@ -32,6 +32,7 @@ module ActionView
       # And the 'value_field' would be filled by +manager_id+ of +worker+ associated to +task+, 'text_field' by his +full_name+
       #
       def assoc_whisperer(object_name, method, data_action, options={})
+        raise "Helper '#assoc_whisperer' is for Rails >= 4.x. Use '#assoc_whisperer_tag' instead." if Rails::VERSION::STRING.to_i < 4
         wrapper_assoc_whisperer_assets
 
         Tags::AssocWhispererField.new(object_name, method, self, data_action, options).render

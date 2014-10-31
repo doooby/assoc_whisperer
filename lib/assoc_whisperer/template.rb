@@ -21,7 +21,10 @@ module AssocWhisperer
     end
 
     def whisperer_options
-      {url: (@opts[:url]||AssocWhisperer.def_url), action: @action, cs: !!@opts[:client_side], pre: !!@opts[:preload]}
+      h = {url: (@opts[:url]||AssocWhisperer.def_url), action: @action}
+      h.merge cs: true, pre: !!@opts[:preload] if @opts[:client_side]
+      h[:params] = @opts[:params] unless @opts[:params].blank?
+      h
     end
 
     def value_field_tag(id, name, value)
@@ -37,13 +40,13 @@ module AssocWhisperer
           arr << %(#{k}="#{opts[k]}")
           arr
         end
-        opts * ' '
+        opts = opts * ' '
       end
-      %(<input type="text" id="#{id}" name="#{name}" value="#{value}" class="text_field#{' unfilled' if unfilled}"#{opts}>)
+      %(<input type="text" autocomplete="off" id="#{id}" name="#{name}" value="#{value}" class="text_field#{' unfilled' if unfilled}"#{opts}>)
     end
 
     def dropdown_button_tag
-      "<span class=\"dropdown_button\">\u25BE</span>"
+      "<span class=\"dropdown_button querying\">\u25BE</span>"
     end
 
   end
