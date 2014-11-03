@@ -2,28 +2,49 @@
 
 module AssocWhisperer
   class Template
-    attr_reader :action, :opts
 
     def initialize(action, opts={})
-      @action = action
-      @opts = opts
+      @action = action[0]=='/' ? action : "#{AssocWhisperer.def_url}/#{action}"
+      @value = opts[:value]
+      @text = opts[:text]
+      @client_side = opts[:client_side]
     end
 
-    def simple_tag_contents(input_name)
+    def params(params)
+      @params = params
+      self
+    end
+
+    def value_text(object_or_params, value=nil, text=nil)
+      if object_or_params.is_a? Hash
+        raise 'Value argument cannot be nil.' unless value
+        text = "#{value}_txt" unless text
+        @value = object_or_params[value]
+        @text = object_or_params[text]
+      elsif object_or_params
+        value ||= AssocWhisperer.def_value
+        text ||= AssocWhisperer.def_text
+        @value = (object_or_params.send value if object_or_params.respond_to? value)
+        @text = (object_or_params.send text if object_or_params.respond_to? text)
+      end
+      self
+    end
+
+    def tag_contents(input_name, field_attrs={})
       input_name = input_name.to_s
       sanitized_id = input_name.dup.delete(']').gsub(/[^-a-zA-Z0-9:.]/, "_")
       text_tag_name = input_name.dup
       text_tag_name.insert (text_tag_name[-1]==']' ? -2 : -1), '_txt'
 
-      contents = value_field_tag sanitized_id, input_name, @opts[:value]
-      contents += text_field_tag "#{sanitized_id}_txt", text_tag_name, @opts[:text], @opts[:value].blank?
+      contents = value_field_tag sanitized_id, input_name, @value
+      contents += text_field_tag "#{sanitized_id}_txt", text_tag_name, @text, @value.blank?, field_attrs
       contents + dropdown_button_tag
     end
 
-    def whisperer_options
-      h = {url: (@opts[:url]||AssocWhisperer.def_url), action: @action}
-      h.merge cs: true, pre: !!@opts[:preload] if @opts[:client_side]
-      h[:params] = @opts[:params] unless @opts[:params].blank?
+    def whisperer_settings
+      h = {action: @action}
+      h[:cs] = @client_side if @client_side
+      h[:params] = @params if @params
       h
     end
 
@@ -31,18 +52,14 @@ module AssocWhisperer
       %(<input type="hidden" id="#{id}" name="#{name}" value="#{value}" class="value_field">)
     end
 
-    def text_field_tag(id, name, value, unfilled=true)
-      opts = @opts[:text_field]
-      if opts
-        opts[:size] ||= 12
-        keys_whitelist = (opts.keys & [:size, :placeholder, :maxlength, :title])
-        opts = keys_whitelist.inject [] do |arr, k|
-          arr << %(#{k}="#{opts[k]}")
-          arr
-        end
-        opts = opts * ' '
+    def text_field_tag(id, name, value, unfilled=true, attrs={})
+      attrs[:size] = 12 unless attrs.has_key? :size
+      keys_whitelist = (attrs.keys & [:size, :placeholder, :maxlength, :title])
+      attrs = keys_whitelist.inject [] do |arr, k|
+        arr << %(#{k}="#{attrs[k]}")
+        arr
       end
-      %(<input type="text" autocomplete="off" id="#{id}" name="#{name}" value="#{value}" class="text_field#{' unfilled' if unfilled}"#{opts}>)
+      %(<input type="text" autocomplete="off" id="#{id}" name="#{name}" value="#{value}" class="text_field#{' unfilled' if unfilled}"#{attrs * ' '}>)
     end
 
     def dropdown_button_tag

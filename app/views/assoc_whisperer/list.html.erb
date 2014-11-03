@@ -1,9 +1,9 @@
 <%
    text_method = local_assigns[:text] || :to_s
-   val_method = local_assigns[:val] || :id
+   value_method = local_assigns[:value] || :id
 %>
 <div tabindex=0 class="list">
   <% @objects.each do |o| %>
-    <div data-value="<%= o.send val_method %>"><%= o.send text_method %></div>
+    <div data-value="<%= o.send value_method %>"><%= o.send text_method %></div>
   <% end %>
 </div>

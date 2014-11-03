@@ -15,7 +15,7 @@ document.AssocWhisperer = (function () {
 
     // This is where Whisperer Object is created - with all hidden inner methods.
     function createWhisperer(dom_node) {
-        var el, w, _nodes, opts, params, _timer;
+        var el, w, opts, _nodes, _timer;
 
         el = $(dom_node);
         _nodes = {
@@ -25,22 +25,25 @@ document.AssocWhisperer = (function () {
             list: null
         };
         opts = el.data('opts');
-        if (!opts['action']) throw 'Missing action in '+JSON.stringify(opts);
-        if (!opts['url']) throw 'Missing url in '+JSON.stringify(opts);
+        if (!opts['action']) throw 'Missing action path in '+JSON.stringify(opts);
         if (typeof opts['params']!=='object') opts['params'] = {};
+//        opts['cs'] = parseInt(opts['cs']);
 
         w = Object.create(proto, {
             nodes: {value: _nodes},
-            action: {value: opts['action']},
-            url: {value: opts['url']},
-            params: {value: opts['params']},
             focused: {value: false, writable: true},
             filled: {value: _nodes['value_field'].val()!=='', writable: true},
-            client_side: {value: opts['cs']===true},
-            preload: {value: opts['pre']===true},
-            full_data: {value: null, writable: true}
+            // setting
+            action: {value: opts['action']},
+            params: {value: opts['params']}
         });
-        w.params['data_action'] = w.action;
+//        if (!isNaN(opts['cs'])) {
+//            // client side
+//            Object.defineProperties({
+//                client_side: {value: opts['cs']},
+//                full_data: {value: null, writable: true}
+//            });
+//        }
 
         _nodes.text_field.on('keyup', function(e){
             var input_text;
@@ -67,11 +70,11 @@ document.AssocWhisperer = (function () {
                 }
                 _timer = setTimeout(function () {
                     if (w.client_side) {
-                        if (!w.full_data) query(w, null, function (html_text) {
-                            w.full_data = $(html_text);
-                            showList(digest(input_text));
-                        });
-                        else showList(digest(input_text));
+//                        if (!w.full_data) query(w, null, function (html_text) {
+//                            w.full_data = $(html_text);
+//                            showList(digest(input_text));
+//                        });
+//                        else showList(digest(input_text));
                     }
                     else query(w, input_text, function (html_text) {
                         showList($(html_text));
@@ -86,20 +89,20 @@ document.AssocWhisperer = (function () {
             var f;
             if (_timer) clearTimeout(_timer);
             if (w.client_side) {
-                f = function () {
-                    var input_text;
-                    if (w.filled) showList(w.full_data);
-                    else {
-                        input_text = _nodes['text_field'].val();
-                        showList(digest(input_text==='' ? null : input_text));
-                    }
-                    _nodes['list'].focus();
-                };
-                if (!w.full_data) query(w, null, function (html_text) {
-                    w.full_data = $(html_text);
-                    f();
-                });
-                else f();
+//                f = function () {
+//                    var input_text;
+//                    if (w.filled) showList(w.full_data);
+//                    else {
+//                        input_text = _nodes['text_field'].val();
+//                        showList(digest(input_text==='' ? null : input_text));
+//                    }
+//                    _nodes['list'].focus();
+//                };
+//                if (!w.full_data) query(w, null, function (html_text) {
+//                    w.full_data = $(html_text);
+//                    f();
+//                });
+//                else f();
             }
             else {
                 query(w, (w.filled ? null : _nodes['text_field'].val()), function (html_text) {
@@ -110,19 +113,19 @@ document.AssocWhisperer = (function () {
         });
         el.children('.dropdown_button').removeClass('querying'); // css class is set, hence gif gets pre-loaded
 
-        // For local full_data finds matching rows and shows them.
-        function digest(input_text) {
-            var narrowed_list = w.full_data;
-            if (input_text && input_text!=='') {
-                input_text = input_text.toLowerCase();
-                narrowed_list = $(narrowed_list[0].cloneNode());
-                w.full_data.children().each(function () {
-                    if (this.innerText.toLowerCase().indexOf(input_text)!==-1)
-                        narrowed_list.append($(this).clone());
-                });
-            }
-            return narrowed_list;
-        }
+//        // For local full_data finds matching rows and shows them.
+//        function digest(input_text) {
+//            var narrowed_list = w.full_data;
+//            if (input_text && input_text!=='') {
+//                input_text = input_text.toLowerCase();
+//                narrowed_list = $(narrowed_list[0].cloneNode());
+//                w.full_data.children().each(function () {
+//                    if (this.innerText.toLowerCase().indexOf(input_text)!==-1)
+//                        narrowed_list.append($(this).clone());
+//                });
+//            }
+//            return narrowed_list;
+//        }
 
         // Attaches a List sent by html string within Whisperer's tag. Positions it underneath the text field.
         function showList (list) {
@@ -187,8 +190,8 @@ document.AssocWhisperer = (function () {
         klass.querying = true;
         btn = w.nodes['base'].find('.dropdown_button');
         btn.addClass('querying');
-        w.params['input'] = input || '';
-        $.ajax(w.url, {
+        w.params['input'] = input;
+        $.ajax(w.action, {
                 type: 'GET',
                 dataType: 'html',
                 data: w.params,
@@ -206,7 +209,6 @@ document.AssocWhisperer = (function () {
     //                                          public interface                                                      //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
     klass = Object.create(Object, {querying: {value: false, writable: true}});
 
     // Return a Whisperer instance by its data-action attribute.
@@ -214,7 +216,7 @@ document.AssocWhisperer = (function () {
         var i, w;
         for (i = 0; i < all_array.length; i += 1) {
             w = all_array[i];
-            if (w.action===action) return w;
+            if (w.params['action']===action || w.action.indexOf(action)!==-1) return w;
         }
         return null;
     }

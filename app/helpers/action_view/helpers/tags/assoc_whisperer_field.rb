@@ -4,8 +4,8 @@ module ActionView
       class AssocWhispererField < Base # :nodoc:
 
         def initialize(object_name, method_name, template_object, action, options={})
-          options[:value_method] = AssocWhisperer.def_value_method unless options.has_key? :value_method
-          options[:text_method] = AssocWhisperer.def_text_method unless options.has_key? :text_method
+          options[:value_method] = AssocWhisperer.def_value unless options.has_key? :value_method
+          options[:text_method] = AssocWhisperer.def_text unless options.has_key? :text_method
           super object_name, method_name, template_object, options
           @template = AssocWhisperer::Template.new action, @options
         end
