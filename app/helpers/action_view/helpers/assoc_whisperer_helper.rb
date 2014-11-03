@@ -3,12 +3,12 @@ module ActionView
 
     module AssocWhispererHelper
 
-      # def whisperer(object_name, method, data_action, options={})
-      #   raise "Helper '#assoc_whisperer' is for Rails >= 4.x. Use '#assoc_whisperer_tag' instead." if Rails::VERSION::STRING.to_i < 4
-      #   wrapper_whisperer_assets
-      #
-      #   Tags::AssocWhispererField.new(object_name, method, self, data_action, options).render
-      # end
+      def whisperer(object_name, method, template, field_attrs={})
+        raise "Helper '#whisperer' cannot be used in Rails < 4.x. Use '#whisperer_tag' instead." if Rails::VERSION::STRING.to_i < 4
+        wrapper_whisperer_assets
+
+        Tags::AssocWhispererField.new(object_name, method, self, template, field_attrs).render
+      end
 
       def whisperer_tag(name, template, field_attrs={})
         wrapper_whisperer_assets
@@ -34,9 +34,9 @@ module ActionView
     end
 
     class FormBuilder
-      # def whisperer(method, data_action, options = {})
-      #   @template.assoc_whisperer @object_name, method, data_action, objectify_options(options)
-      # end
+      def whisperer(method, template, field_attrs={})
+        @template.assoc_whisperer @object_name, method, template, objectify_options(field_attrs)
+      end
     end
 
     autoload :AssocWhispererHelper
