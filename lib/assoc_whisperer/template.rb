@@ -7,6 +7,7 @@ module AssocWhisperer
     def initialize(action, opts={})
       @action = action[0]=='/' ? action : "#{AssocWhisperer.def_url}/#{action}"
       @opts = opts
+      @opts[:dropdown_button] = true if @opts[:dropdown_button].nil?
     end
 
     def params(params)
@@ -63,6 +64,7 @@ module AssocWhisperer
     end
 
     def dropdown_button_tag
+      return '' unless @opts[:dropdown_button].is_a? TrueClass
       "<span class=\"dropdown_button querying\">\u25BE</span>"
     end
 

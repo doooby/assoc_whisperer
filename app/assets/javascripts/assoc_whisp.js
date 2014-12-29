@@ -22,6 +22,7 @@ document.AssocWhisperer = (function () {
             base: el,
             text_field: el.children('.text_field'),
             value_field: el.children('.value_field'),
+            dropdown_button: el.children('.dropdown_button'),
             list: null
         };
         opts = el.data('opts');
@@ -32,7 +33,7 @@ document.AssocWhisperer = (function () {
         w = Object.create(proto, {
             nodes: {value: _nodes},
             focused: {value: false, writable: true},
-            filled: {value: _nodes['value_field'].val()!=='', writable: true},
+            filled: {value: _nodes.value_field.val()!=='', writable: true},
             // setting
             action: {value: opts['action']},
             params: {value: opts['params']}
@@ -56,17 +57,17 @@ document.AssocWhisperer = (function () {
             if (_timer) clearTimeout(_timer);
             if (w.filled) {
                 w.filled = false;
-                _nodes['value_field'].val('');
-                _nodes['text_field'].addClass('unfilled');
+                _nodes.value_field.val('');
+                _nodes.text_field.addClass('unfilled');
             }
 
-            input_text = _nodes['text_field'].val();
+            input_text = _nodes.text_field.val();
             if (input_text==='') {
                 w.removeList();
             }
             else {
-                if (_nodes['list']) {
-                    _nodes['list'].addClass('invalid');
+                if (_nodes.list) {
+                    _nodes.list.addClass('invalid');
                 }
                 _timer = setTimeout(function () {
                     if (w.client_side) {
@@ -82,10 +83,10 @@ document.AssocWhisperer = (function () {
                 }, 700);
             }
         });
-        _nodes.text_field.on('click', function(){ _nodes['text_field'].select(); });
+        _nodes.text_field.on('click', function(){ _nodes.text_field.select(); });
         _nodes.text_field.focus(function(){ w.focused = true; });
         _nodes.text_field.blur(function(){ onBlur(); });
-        el.children('.dropdown_button').on('click', function(){
+        _nodes.dropdown_button.on('click', function(){
             var f;
             if (_timer) clearTimeout(_timer);
             if (w.client_side) {
@@ -93,10 +94,10 @@ document.AssocWhisperer = (function () {
 //                    var input_text;
 //                    if (w.filled) showList(w.full_data);
 //                    else {
-//                        input_text = _nodes['text_field'].val();
+//                        input_text = _nodes.text_field.val();
 //                        showList(digest(input_text==='' ? null : input_text));
 //                    }
-//                    _nodes['list'].focus();
+//                    _nodes.list.focus();
 //                };
 //                if (!w.full_data) query(w, null, function (html_text) {
 //                    w.full_data = $(html_text);
@@ -105,13 +106,13 @@ document.AssocWhisperer = (function () {
 //                else f();
             }
             else {
-                query(w, (w.filled ? null : _nodes['text_field'].val()), function (html_text) {
+                query(w, (w.filled ? null : _nodes.text_field.val()), function (html_text) {
                     showList($(html_text));
-                    _nodes['list'].focus();
+                    _nodes.list.focus();
                 });
             }
         });
-        el.children('.dropdown_button').removeClass('querying'); // css class is set, hence gif gets pre-loaded
+        _nodes.dropdown_button.removeClass('querying'); // css class is set, hence gif gets pre-loaded
 
 //        // For local full_data finds matching rows and shows them.
 //        function digest(input_text) {
@@ -129,19 +130,16 @@ document.AssocWhisperer = (function () {
 
         // Attaches a List sent by html string within Whisperer's tag. Positions it underneath the text field.
         function showList (list) {
-            var base_dom;
             w.removeList();
 
-            _nodes['list'] = list;
-
-            base_dom = _nodes['base'];
-            list.css('min-width', base_dom.width());
-            list.css('left', base_dom.offset().left);
-            list.css('top', base_dom.position().top + base_dom.outerHeight());
+            list.css('min-width', _nodes.base.width());
+            list.css('left', _nodes.base.offset().left);
+            list.css('top', _nodes.base.position().top + _nodes.base.outerHeight());
             list.focus(function(){ w.focused = true; });
             list.blur(function(){ onBlur(); });
-            base_dom.append(list);
+            _nodes.base.append(list);
 
+            _nodes.list = list;
             list.find('div').on('click', function(el){ w.select($(el.currentTarget)); });
         }
 
@@ -163,9 +161,9 @@ document.AssocWhisperer = (function () {
     // Removes the List should there be any.
     Object.defineProperty(proto, 'removeList', {
         value: function () {
-            if (this.nodes['list']) {
-                this.nodes['list'].detach();
-                this.nodes['list'] = null
+            if (this.nodes.list) {
+                this.nodes.list.detach();
+                this.nodes.list = null
             }
         }
     });
@@ -176,9 +174,9 @@ document.AssocWhisperer = (function () {
             var text;
             if (row.length!==1) return;
             text = row.text();
-            this.nodes['text_field'].val(text);
-            this.nodes['text_field'].removeClass('unfilled');
-            this.nodes['value_field'].val(row.attr('data-value'));
+            this.nodes.text_field.val(text);
+            this.nodes.text_field.removeClass('unfilled');
+            this.nodes.value_field.val(row.attr('data-value'));
             this.filled = true;
             this.removeList();
         }
@@ -186,10 +184,8 @@ document.AssocWhisperer = (function () {
 
     // Actual ajax request for given input
     function query (w, input, on_success) {
-        var btn;
         klass.querying = true;
-        btn = w.nodes['base'].find('.dropdown_button');
-        btn.addClass('querying');
+        w.nodes.dropdown_button.addClass('querying');
         w.params['input'] = input;
         $.ajax(w.action, {
                 type: 'GET',
@@ -199,7 +195,7 @@ document.AssocWhisperer = (function () {
                 success: on_success,
                 complete: function () {
                     klass.querying = false;
-                    btn.removeClass('querying');
+                    w.nodes.dropdown_button.removeClass('querying');
                 }
             }
         );
@@ -224,7 +220,7 @@ document.AssocWhisperer = (function () {
     // Sets a value to Whisperer
     Object.defineProperty(klass, 'setValueFor', {
         value: function (value, whisp_action) {
-            findWhisperer(whisp_action).nodes['value_field'].val(value);
+            findWhisperer(whisp_action).nodes.value_field.val(value);
         }
     });
 
