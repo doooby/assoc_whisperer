@@ -50,7 +50,7 @@ module ActionView
           name = if @whisp_template.opts[:name]
                    @whisp_template.opts[:name].to_s
                  else
-                   "#{@method_name}_#{@template.opts[:value]}"
+                   "#{@method_name}_#{@whisp_template.opts[:value]}"
                  end
           @value_sanitized_method_name = name.sub(/\?$/, '')
         end

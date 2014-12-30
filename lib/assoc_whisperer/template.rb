@@ -7,7 +7,9 @@ module AssocWhisperer
     def initialize(action, opts={})
       @action = action[0]=='/' ? action : "#{AssocWhisperer.def_url}/#{action}"
       @opts = opts
-      @opts[:dropdown_button] = true if @opts[:dropdown_button].nil?
+      @opts[:value] = AssocWhisperer.def_value unless @opts[:value]
+      @opts[:text] = AssocWhisperer.def_text unless @opts[:text]
+      @opts[:button] = true if @opts[:button].nil?
     end
 
     def params(params)
@@ -20,10 +22,8 @@ module AssocWhisperer
         @value = object_or_params[name]
         @text = object_or_params["#{name}_txt"]
       elsif object_or_params
-        value = @opts[:value] || AssocWhisperer.def_value
-        text = @opts[:text] || AssocWhisperer.def_text
-        @value = (object_or_params.send value if object_or_params.respond_to? value)
-        @text = (object_or_params.send text if object_or_params.respond_to? text)
+        @value = (object_or_params.send @opts[:value] if object_or_params.respond_to? @opts[:value])
+        @text = (object_or_params.send @opts[:text] if object_or_params.respond_to? @opts[:text])
       else
         @value = nil
         @text = nil
@@ -64,7 +64,7 @@ module AssocWhisperer
     end
 
     def dropdown_button_tag
-      return '' unless @opts[:dropdown_button].is_a? TrueClass
+      return '' unless @opts[:button].is_a? TrueClass
       "<span class=\"dropdown_button querying\">\u25BE</span>"
     end
 

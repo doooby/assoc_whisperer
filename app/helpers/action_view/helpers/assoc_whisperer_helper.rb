@@ -35,7 +35,7 @@ module ActionView
 
     class FormBuilder
       def whisperer(method, template, field_attrs={})
-        @template.assoc_whisperer @object_name, method, template, objectify_options(field_attrs)
+        @template.whisperer @object_name, method, template, objectify_options(field_attrs)
       end
     end
 
