@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = AssocWhisperer::VERSION
   spec.authors       = ["Ondřej Želazko"]
   spec.email         = ["zelazk.o@email.cz"]
-  spec.summary       = %q{Rails tag assoc_whisperer for forms}
-  spec.description   = %q{You can associate two models together, while user inputs e.g. name and server recieves id}
-  spec.homepage      = ""
+  spec.summary       = %q{Rails whisperer tag for forms}
+  spec.description   = %q{Input associated models directly by id}
+  spec.homepage      = "https://github.com/doooby/assoc_whisperer"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
