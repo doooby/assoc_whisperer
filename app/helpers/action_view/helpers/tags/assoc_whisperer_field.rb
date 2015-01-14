@@ -9,7 +9,7 @@ module ActionView
         end
 
         def render
-          @whisp_template.value_text whispered_object
+          @whisp_template.for_object whispered_object
 
           contents = @whisp_template.value_field_tag value_tag_id, value_tag_name
           contents += @whisp_template.text_field_tag text_tag_id, text_tag_name, @options

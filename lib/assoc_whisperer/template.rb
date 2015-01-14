@@ -15,13 +15,13 @@ module AssocWhisperer
     #            If not specified then {AssocWhisperer.def_value} is used.
     # +:text+:: a method name that is called on given object to get the value for the text field.
     #           If not specified then {AssocWhisperer.def_text} is used.
-    # +:button+:: specifies whether dropdown button will be present. Defaults to true.
+    # +:button+:: specifies whether dropdown button will be present. Defaults to false.
     def initialize(action, opts={})
       @action = action[0]=='/' ? action : "#{AssocWhisperer.def_url}/#{action}"
       @opts = opts
       @opts[:value] = AssocWhisperer.def_value unless @opts[:value]
       @opts[:text] = AssocWhisperer.def_text unless @opts[:text]
-      @opts[:button] = true if @opts[:button].nil?
+      @opts[:button] = false if @opts[:button].nil?
     end
 
     # Sets parameters that will be included to html request. Usefull to specify additional options. Because this returns
@@ -42,8 +42,10 @@ module AssocWhisperer
     # @param [Object] object from which will be the value and text taken.
     # @return [Template]
     def for_object(object)
-      @value = (object.send @opts[:value] if object.respond_to? @opts[:value])
-      @text = (object.send @opts[:text] if object.respond_to? @opts[:text])
+      if object
+        @value = (object.send @opts[:value] if object.respond_to? @opts[:value])
+        @text = (object.send @opts[:text] if object.respond_to? @opts[:text])
+      end
       self
     end
 
